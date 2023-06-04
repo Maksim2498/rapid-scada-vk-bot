@@ -10,7 +10,7 @@ export default class DefaultCommandManager extends CommandManager {
             description: "Выводит справку",
 
             action: (ctx) => {
-                const lines = ["Список доступных команд:"]
+                const lines = ["Список доступных команд:", ""]
 
                 for (const command of this.commands()) {
                     const description = command.description != null ? `/${command.name} - ${command.description}`
