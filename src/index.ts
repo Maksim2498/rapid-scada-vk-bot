@@ -2,7 +2,7 @@ import createLogger from "util/createLogger"
 import readEnv      from "util/readEnv"
 import Server       from "Server"
 
-import dontent from "dotenv"
+import "dotenv/config"
 
 const logger = createLogger()
 
