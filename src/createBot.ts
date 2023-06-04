@@ -1,7 +1,8 @@
-import VkBot             from "node-vk-bot-api"
+import VkBot                 from "node-vk-bot-api"
+import DefaultCommandManager from "command/DefaultCommandManager"
 
-import { Logger        } from "winston"
-import { ReadEnvResult } from "readEnv"
+import { Logger            } from "winston"
+import { ReadEnvResult     } from "readEnv"
 
 export default function createBot(env: ReadEnvResult, logger?: Logger): VkBot {
     logger?.debug("Creating bot...")
@@ -15,9 +16,20 @@ export default function createBot(env: ReadEnvResult, logger?: Logger): VkBot {
 
     logger?.debug("Created")
 
-    bot.command("/test", async ctx => {
-        ctx.reply("Hello, World!")
+    bot.use(async (ctx, next) => {
+        try {
+            await next?.()
+        } catch (error) {
+            logger?.error(error)
+        }
     })
+
+    logger?.debug("Registering commands...")
+
+    const commandManager = new DefaultCommandManager()
+    commandManager.register(bot)
+
+    logger?.debug("Registered")
 
     return bot
 }
