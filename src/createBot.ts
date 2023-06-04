@@ -29,6 +29,8 @@ export default function createBot(env: ReadEnvResult, logger?: Logger): VkBot {
     const commandManager = new DefaultCommandManager()
     commandManager.register(bot)
 
+    bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
+
     logger?.debug("Registered")
 
     return bot
