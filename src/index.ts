@@ -1,9 +1,8 @@
-import dotenv       from "dotenv"
 import createLogger from "util/createLogger"
 import readEnv      from "util/readEnv"
 import Server       from "Server"
 
-dotenv.config({ override: false })
+import dontent from "dotenv"
 
 const logger = createLogger()
 
