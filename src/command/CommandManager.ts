@@ -1,11 +1,28 @@
-import Command from "./Command"
+import Command    from "./Command"
+
+import { Logger } from "winston"
 
 export default class CommandManager {
     private readonly commandMap: Map<string, Command> = new Map()
 
-    add(...commands: Command[]): this {
-        for (const command of commands)
+            readonly bot:        VkBot
+            readonly logger:     Logger | null
+
+    constructor(bot: VkBot, logger?: Logger | null) {
+        this.bot    = bot
+        this.logger = logger ?? null
+
+        bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
+
+        logger?.debug("Created command manager")
+    }
+
+    register(...commands: Command[]): this {
+        for (const command of commands) {
             this.commandMap.set(command.name, command)
+            command.register(this.bot)
+            this.logger?.debug(`Registered command /${command.name}`)
+        }
 
         return this
     }
@@ -14,30 +31,15 @@ export default class CommandManager {
         return this.commandMap.get(name)
     }
 
-    delete(name: string): boolean {
-        return this.commandMap.delete(name)
-    }
-
-    clear() {
-        this.commandMap.clear()
-    }
-
-    entries() {
+    entries(): IterableIterator<[string, Command]> {
         return this.commandMap.entries()
     }
 
-    names() {
+    names(): IterableIterator<string> {
         return this.commandMap.keys()
     }
 
-    commands() {
+    commands(): IterableIterator<Command> {
         return this.commandMap.values()
-    }
-
-    register(bot: VkBot) {
-        for (const command of this.commands())
-            command.register(bot)
-
-        bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
     }
 }

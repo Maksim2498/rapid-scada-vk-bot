@@ -1,7 +1,7 @@
 import express      from "express"
-import createLogger from "createLogger"
-import readEnv      from "readEnv"
-import createBot    from "createBot"
+import createLogger from "util/createLogger"
+import readEnv      from "util/readEnv"
+import Server       from "Server"
 
 import "dotenv/config"
 
@@ -15,23 +15,13 @@ main().catch(error => {
 async function main() {
     logger.info("Initializing...")
 
-    const env = readEnv(logger)
-    const bot = createBot(env, logger)
-    const app = express()
+    const env    = readEnv(logger)
+    const server = new Server(env, logger)
 
-    app.use(express.json())
-    app.post(env.vkPrefix, (req, res, next) => bot.webhookCallback(req, res, next as () => {}))
+    await server.initialize()
+    await server.listen()
 
-    logger.debug("Starting listening...")
-
-    const server = app.listen(env.port, () => {
-        logger.info("Initialized")
-        logger.info(`Listening for VK callbacks at http://localhost:${env.port}${env.vkPrefix}`)
-        logger.info(`Listening for Rapid SCADA callbacks at http://localhost:${env.port}${env.rapidScadaPrefix}`)
-        logger.info("Press Ctrl-C to quit")
-
-        setupSigInt()
-    })
+    setupSigInt()
 
     function setupSigInt() {
         let stopping = false
@@ -43,12 +33,8 @@ async function main() {
             stopping = true
 
             console.log()
-            logger.info("Closing server...")
-
-            server.close(() => {
-                logger.info("Closed")
-                process.exit()
-            })
+            await server.close()
+            process.exit()
         })
     }
 }
