@@ -13,8 +13,10 @@ export default class DefaultCommandManager extends CommandManager {
                 const lines = ["Список доступных команд:", ""]
 
                 for (const command of this.commands()) {
-                    const description = command.description != null ? `/${command.name} - ${command.description}`
-                                                                    : `/${command.name}`
+                    let description = `/${command.hint ?? command.name}`
+
+                    if (command.description != null)
+                        description += ` - ${command.description}`
 
                     lines.push(description)
                 }
@@ -25,28 +27,52 @@ export default class DefaultCommandManager extends CommandManager {
             }
         })
 
-        const start = new Command({
-            name:        "start",
-            description: "подписаться на уведомления",
+        const create = new Command({
+            name:        "create",
+            hint:         "create <password>",
+            description: "создать канал уведомлений",
 
             action(ctx) {
 
             }
         })
 
-        const stop = new Command({
-            name:        "stop",
-            description: "отменить рассылку",
+        const del = new Command({
+            name:        "delete",
+            minArgCount: 1,
+            description: "удалить канал уведомлений",
 
             action(ctx) {
-                
+
+            }
+        })
+
+        const sub = new Command({
+            name:        "sub",
+            minArgCount: 1,
+            description: "подписаться на канал уведомлений",
+
+            action(ctx) {
+
+            }
+        })
+
+        const unsub = new Command({
+            name:        "unsub",
+            minArgCount: 1,
+            description: "отписаться от канала уведомлений",
+
+            action(ctx) {
+
             }
         })
 
         this.add(
             help,
-            start,
-            stop,
+            create,
+            del,
+            sub,
+            unsub,
         )
     }
 }
