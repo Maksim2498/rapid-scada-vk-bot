@@ -1,7 +1,7 @@
 import { Logger } from "winston"
 
 const DEFAULT_PORT   = 8000
-const DEFAULT_PREFIX = "/api"
+const DEFAULT_PREFIX = "/bot/api"
 
 export interface ReadEnvResult {
     port:          number
