@@ -29,7 +29,6 @@ export default class DefaultCommandManager extends CommandManager {
 
         const create = new Command({
             name:        "create",
-            hint:         "create <password>",
             description: "создать канал уведомлений",
 
             action(ctx) {
@@ -39,6 +38,7 @@ export default class DefaultCommandManager extends CommandManager {
 
         const del = new Command({
             name:        "delete",
+            hint:        "delete <ID канала>",
             minArgCount: 1,
             description: "удалить канал уведомлений",
 
@@ -49,6 +49,7 @@ export default class DefaultCommandManager extends CommandManager {
 
         const sub = new Command({
             name:        "sub",
+            hint:        "sub <ID канала>",
             minArgCount: 1,
             description: "подписаться на канал уведомлений",
 
@@ -59,6 +60,7 @@ export default class DefaultCommandManager extends CommandManager {
 
         const unsub = new Command({
             name:        "unsub",
+            hint:        "unsub <ID канала>",
             minArgCount: 1,
             description: "отписаться от канала уведомлений",
 
