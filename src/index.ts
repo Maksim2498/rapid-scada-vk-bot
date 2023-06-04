@@ -13,8 +13,6 @@ main().catch(error => {
 })
 
 async function main() {
-    logger.info("Initializing...")
-
     const env    = readEnv(logger)
     const server = new Server(env, logger)
 
