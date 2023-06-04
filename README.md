@@ -1,3 +1,3 @@
-# ВК-бот для интеграции с Rapid SCADA
+# Rapid SCADA VK Bot
 
-Здесь будет что-то написано, но позже
+Bot used for integrating Rapid SCADA with VK
