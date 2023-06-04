@@ -37,5 +37,7 @@ export default class CommandManager {
     register(bot: VkBot) {
         for (const command of this.commands())
             command.register(bot)
+
+        bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
     }
 }
