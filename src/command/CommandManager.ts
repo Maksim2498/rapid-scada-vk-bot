@@ -1,35 +1,37 @@
 import Command from "./Command"
 
 export default class CommandManager {
-    private readonly _commands: Map<string, Command> = new Map()
+    private readonly commandMap: Map<string, Command> = new Map()
 
-    add(command: Command): this {
-        this._commands.set(command.name, command)
+    add(...commands: Command[]): this {
+        for (const command of commands)
+            this.commandMap.set(command.name, command)
+
         return this
     }
 
     get(name: string): Command | undefined {
-        return this._commands.get(name)
+        return this.commandMap.get(name)
     }
 
     delete(name: string): boolean {
-        return this._commands.delete(name)
+        return this.commandMap.delete(name)
     }
 
     clear() {
-        this._commands.clear()
+        this.commandMap.clear()
     }
 
     entries() {
-        return this._commands.entries()
+        return this.commandMap.entries()
     }
 
     names() {
-        return this._commands.keys()
+        return this.commandMap.keys()
     }
 
     commands() {
-        return this._commands.values()
+        return this.commandMap.values()
     }
 
     register(bot: VkBot) {
