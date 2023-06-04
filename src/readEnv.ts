@@ -1,15 +1,17 @@
 import { Logger } from "winston"
 
-const DEFAULT_PORT   = 8000
-const DEFAULT_PREFIX = "/bot/api"
+export const DEFAULT_PORT               = 8000
+export const DEFAULT_VK_PREFIX          = "/bot/api/vk"
+export const DEFAULT_RAPID_SCADA_PREFIX = "/bot/api/rapid-scada"
 
 export interface ReadEnvResult {
-    port:          number
-    prefix:        string
-    token:         string
-    groupId?:      number
-    secret?:       string
-    confirmation?: string
+    port:             number
+    vkPrefix:         string
+    rapidScadaPrefix: string
+    token:            string
+    groupId?:         number
+    secret?:          string
+    confirmation?:    string
 }
 
 export default function readEnv(logger?: Logger): ReadEnvResult {
@@ -26,8 +28,9 @@ export default function readEnv(logger?: Logger): ReadEnvResult {
     if (port < 0 || port > 65535)
         throw new Error("PORT environment variable is out of bounds [0, 65535]")
 
-    const prefix = process.env.PREFIX ?? DEFAULT_PREFIX
-    const token  = process.env.TOKEN
+    const vkPrefix         = process.env.VK_PREFIX          ?? DEFAULT_VK_PREFIX
+    const rapidScadaPrefix = process.env.RAPID_SCADA_PREFIX ?? DEFAULT_RAPID_SCADA_PREFIX
+    const token            = process.env.TOKEN
 
     if (token == null)
         throw new Error("TOKEN environment variable is missing")
@@ -44,7 +47,8 @@ export default function readEnv(logger?: Logger): ReadEnvResult {
 
     return {
         port,
-        prefix,
+        vkPrefix,
+        rapidScadaPrefix,
         token,
         groupId,
         secret,

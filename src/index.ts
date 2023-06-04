@@ -20,13 +20,14 @@ async function main() {
     const app = express()
 
     app.use(express.json())
-    app.post(env.prefix, (req, res, next) => bot.webhookCallback(req, res, next as () => {}))
+    app.post(env.vkPrefix, (req, res, next) => bot.webhookCallback(req, res, next as () => {}))
 
     logger.debug("Starting listening...")
 
     const server = app.listen(env.port, () => {
         logger.info("Initialized")
-        logger.info(`Bot is listening at http://localhost:${env.port}${env.prefix}`)
+        logger.info(`Listening for VK callbacks at http://localhost:${env.port}${env.vkPrefix}`)
+        logger.info(`Listening for Rapid SCADA callbacks at http://localhost:${env.port}${env.rapidScadaPrefix}`)
         logger.info("Press Ctrl-C to quit")
 
         setupSigInt()
