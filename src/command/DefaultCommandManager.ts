@@ -43,6 +43,10 @@ export default class DefaultCommandManager extends CommandManager {
             }
         })
 
-        this.add(help)
+        this.add(
+            help,
+            start,
+            stop,
+        )
     }
 }
