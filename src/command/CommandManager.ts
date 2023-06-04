@@ -12,8 +12,6 @@ export default class CommandManager {
         this.bot    = bot
         this.logger = logger ?? null
 
-        bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
-
         logger?.debug("Created command manager")
     }
 

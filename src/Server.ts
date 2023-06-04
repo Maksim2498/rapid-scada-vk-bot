@@ -10,13 +10,14 @@ import { Logger               } from "winston"
 import { ReadonlyEnv          } from "util/readEnv"
 
 export default class Server {
-    private          httpServer:     HttpServer | null = null
-    private readonly app:            Application
-    private readonly bot:            VkBot
-            readonly env:            ReadonlyEnv
-            readonly logger:         Logger     | null
-            readonly channelManager: ChannelManager
-            readonly commandManager: CommandManager
+    private  httpServer:     HttpServer | null = null
+
+    readonly app:            Application
+    readonly bot:            VkBot
+    readonly env:            ReadonlyEnv
+    readonly logger:         Logger     | null
+    readonly channelManager: ChannelManager
+    readonly commandManager: CommandManager
 
     constructor(env: ReadonlyEnv, logger?: Logger | null) {
         this.bot            = createBot()
@@ -148,6 +149,8 @@ export default class Server {
                 sub,
                 unsub,
             )
+
+            this.bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
 
             this.logger?.debug("Registered")
         }
