@@ -1,3 +1,4 @@
+import z                        from "zod"
 import express                  from "express"
 import VkBot                    from "node-vk-bot-api"
 import ChannelManager           from "channel/ChannelManager"
@@ -11,6 +12,11 @@ import { Logger               } from "winston"
 import { ReadonlyEnv          } from "util/readEnv"
 
 export default class Server {
+    private static readonly PUBLISH_JSON_SCHEMA = z.object({
+        channelId: z.string(),
+        message:   z.string(),
+    })
+
     private  httpServer:     HttpServer | null = null
 
     readonly app:            Application
@@ -22,7 +28,7 @@ export default class Server {
 
     constructor(env: ReadonlyEnv, logger?: Logger | null) {
         this.bot            = createBot()
-        this.app            = createApp(this.bot)
+        this.app            = createApp.call(this)
         this.env            = env
         this.logger         = logger ?? null
         this.commandManager = new CommandManager(this.bot, logger)
@@ -57,13 +63,37 @@ export default class Server {
             return bot
         }
 
-        function createApp(bot: VkBot): Application {
+        function createApp(this: Server): Application {
             logger?.debug("Creating express app...")
 
             const app = express()
 
             app.use(express.json())
-            app.post(env.vkPrefix, (req, res, next) => bot.webhookCallback(req, res, next as () => {}))
+
+            app.post(env.vkPrefix,         (req, res, next) => this.bot.webhookCallback(req, res, next as () => {}))
+            app.post(env.rapidScadaPrefix, async (req, res      ) => {
+                const parseResult = Server.PUBLISH_JSON_SCHEMA.safeParse(req.body)
+
+                if (!parseResult.success) {
+                    res.sendStatus(400)
+                    return
+                }
+
+                const { channelId, message } = parseResult.data
+
+                try {
+                    const channel = this.channelManager.get(channelId)
+
+                    if (channel != null)
+                        await channel.publish(message)
+                } catch (error) {
+                    this.logger?.error(error)
+                    res.sendStatus(500)
+                    return
+                }
+
+                res.sendStatus(200)
+            })
 
             logger?.debug("Created")
 

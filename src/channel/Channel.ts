@@ -49,6 +49,6 @@ export default class Channel {
 
     async publish(message: string) {
         for (const id of this.subscriberIds)
-            this.bot.sendMessage(id, message)
+            await this.bot.sendMessage(id, message)
     }
 }
