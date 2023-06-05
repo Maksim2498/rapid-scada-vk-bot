@@ -70,6 +70,7 @@ export default class Server {
         this.logger?.debug("Initializing server...")
 
         initializeCommands.call(this)
+        await this.channelManager.initialize()
 
         this.logger?.debug("Server is successfully initialized")
 
@@ -105,7 +106,6 @@ export default class Server {
                 description: "создать канал уведомлений",
 
                 action(ctx) {
-
                 }
             })
 

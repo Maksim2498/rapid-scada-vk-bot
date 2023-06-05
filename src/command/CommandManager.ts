@@ -25,6 +25,10 @@ export default class CommandManager {
         return this
     }
 
+    has(name: string): boolean {
+        return this.commandMap.has(name)
+    }
+
     get(name: string): Command | undefined {
         return this.commandMap.get(name)
     }
