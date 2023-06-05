@@ -1,6 +1,7 @@
 import express                  from "express"
 import VkBot                    from "node-vk-bot-api"
 import ChannelManager           from "channel/ChannelManager"
+import Channel                  from "channel/Channel"
 import CommandManager           from "command/CommandManager"
 import Command                  from "command/Command"
 
@@ -83,7 +84,7 @@ export default class Server {
                 name:        "help",
                 description: "вывести справку",
 
-                action: (ctx) => {
+                action: ctx => {
                     const lines = ["Список доступных команд:", ""]
 
                     for (const command of this.commandManager.commands()) {
@@ -105,7 +106,12 @@ export default class Server {
                 name:        "create",
                 description: "создать канал уведомлений",
 
-                action(ctx) {
+                action: async ctx => {
+                    const channel = new Channel({ creatorId: ctx.message.from_id })
+
+                    this.channelManager.add(channel)
+                    await this.channelManager.save(channel.id)
+                    ctx.reply(`Канал создан.\nID канала: ${channel.id}`)
                 }
             })
 
