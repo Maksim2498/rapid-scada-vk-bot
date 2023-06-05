@@ -113,6 +113,7 @@ export default class Server {
                 action: async ctx => {
                     const channel = await this.channelManager.create({
                         creatorId: ctx.message.from_id,
+                        save:      true,
                     })
 
                     ctx.reply(`Канал создан.\n\nID канала: ${channel.id}`)
