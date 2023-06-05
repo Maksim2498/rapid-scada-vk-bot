@@ -25,8 +25,12 @@ export default class Server {
         this.app            = createApp(this.bot)
         this.env            = env
         this.logger         = logger ?? null
-        this.channelManager = new ChannelManager(env.workingDirectory, logger)
         this.commandManager = new CommandManager(this.bot, logger)
+        this.channelManager = new ChannelManager({
+            bot:    this.bot,
+            folder: env.workingDirectory,
+            logger,
+        })
 
         return
 
@@ -107,10 +111,9 @@ export default class Server {
                 description: "создать канал уведомлений",
 
                 action: async ctx => {
-                    const channel = new Channel({ creatorId: ctx.message.from_id })
-
-                    this.channelManager.add(channel)
-                    await this.channelManager.save(channel.id)
+                    const channel = await this.channelManager.create({
+                        creatorId: ctx.message.from_id,
+                    })
 
                     ctx.reply(`Канал создан.\n\nID канала: ${channel.id}`)
                 }

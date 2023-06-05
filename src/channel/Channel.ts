@@ -1,7 +1,9 @@
 import crypto from "crypto"
 import z      from "zod"
+import VkBot  from "node-vk-bot-api"
 
 export interface ChannelOptions {
+    readonly bot:            VkBot
     readonly id?:            string
     readonly creatorId:      number
     readonly subscriberIds?: Iterable<number>
@@ -18,18 +20,23 @@ export default class Channel {
         subscriberIds: z.number().array().optional(),
     })
 
-    static fromJSON(json: unknown): Channel {
-        return new Channel(Channel.JSON_SCHEMA.parse(json))
+    static fromJSON(bot: VkBot, json: unknown): Channel {
+        return new Channel({
+            ...Channel.JSON_SCHEMA.parse(json),
+            bot,
+        })
     }
 
+    readonly bot:            VkBot
     readonly id:            string
     readonly creatorId:     number
              subscriberIds: number[]
 
     constructor(options: ChannelOptions) {
+        this.bot           = options.bot
         this.id            = options.id?.toLowerCase() ?? crypto.randomBytes(Channel.ID_BYTE_LENGTH).toString("hex")
         this.creatorId     = options.creatorId
-        this.subscriberIds = [...options.subscriberIds ?? []]
+        this.subscriberIds = [...options.subscriberIds ?? [this.creatorId]]
     }
 
     toJSON(): ChannelJSON {
@@ -39,4 +46,6 @@ export default class Channel {
             subscriberIds: [...this.subscriberIds]
         }
     }
+
+    
 }

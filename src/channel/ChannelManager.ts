@@ -1,3 +1,4 @@
+import VkBot               from "node-vk-bot-api"
 import Channel             from "./Channel"
 
 import { promises as fsp } from "fs"
@@ -6,16 +7,33 @@ import { Logger          } from "winston"
 import { ZodError        } from "zod"
 import { fromZodError    } from "zod-validation-error"
 
+export interface ChannelManagerOptions {
+    readonly folder?: string
+    readonly bot:     VkBot
+    readonly logger?: Logger | null
+}
+
+export interface CreateOptions {
+    readonly id?:            string
+    readonly creatorId:      number
+    readonly subscriberIds?: Iterable<number>
+    readonly save?:          boolean
+}
+
 export default class ChannelManager {
+    static readonly DEFAULT_FOLDER = "work"
+
     private  channelMap: Map<string, Channel> = new Map()
     readonly folder:     string
+    readonly bot:        VkBot
     readonly logger:     Logger | null
 
-    constructor(folder: string, logger?: Logger | null) {
-        this.folder = resolve(folder)
-        this.logger = logger ?? null
+    constructor(options: ChannelManagerOptions) {
+        this.folder = resolve(options.folder ?? ChannelManager.DEFAULT_FOLDER)
+        this.bot    = options.bot
+        this.logger = options.logger ?? null
 
-        logger?.debug(`Created channel manager with folder ${folder}`)
+        this.logger?.debug(`Created channel manager with folder ${this.folder}`)
     }
 
     async saveAll() {
@@ -102,7 +120,7 @@ export default class ChannelManager {
         this.logger?.debug("Parsing...")
 
         const json   = JSON.parse(text)
-        const channel = Channel.fromJSON(json)
+        const channel = Channel.fromJSON(this.bot, json)
 
         this.logger?.debug("Parsed")
 
@@ -112,7 +130,25 @@ export default class ChannelManager {
         return channel
     }
 
+    async create(options: CreateOptions): Promise<Channel> {
+        const channel = new Channel({
+            ...options,
+            bot: this.bot,
+        })
+
+        this.add(channel)
+
+        if (options.save)
+            await this.save(channel.id)
+
+        return channel
+    }
+
     add(...channels: Channel[]): this {
+        for (const channel of channels)
+            if (channel.bot !== this.bot)
+                throw new Error(`Channel with id ${channel.id} is using another bot`)
+
         for (const channel of channels)
             this.channelMap.set(channel.id, channel)
 
