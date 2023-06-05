@@ -123,7 +123,7 @@ export default class Server {
                 description: "удалить канал уведомлений",
 
                 action: (ctx, args) => {
-                    const channel = this.channelManager.get(args[1]!)
+                    const channel = this.channelManager.get(args[0]!)
 
                     if (channel == null) {
                         ctx.reply(`Канала таким ID не сущестует`)
