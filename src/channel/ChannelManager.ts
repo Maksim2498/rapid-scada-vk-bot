@@ -19,6 +19,11 @@ export default class ChannelManager {
     }
 
     async saveAll() {
+        const ids = new Set(await this.readIds())
+
+        for (const id of this.ids())
+            ids.add(id)
+
         for (const id of this.ids())
             await this.save(id)
     }
@@ -26,16 +31,20 @@ export default class ChannelManager {
     async save(id: string) {
         id = id.toLowerCase()
 
+        const path    = resolve(this.folder, `${id}.json`)
         const channel = this.get(id)
 
-        if (channel == null)
-            throw new Error(`Chunnel with id ${id} not found`)
+        if (channel == null) {
+            this.logger?.debug(`Removing channel with id ${id} from ${path}...`)
+            await fsp.rm(path, { force: true })
+            this.logger?.debug("Removed")
+            return
+        }
 
         const json = channel.toJSON()
         const text = JSON.stringify(json)
-        const path = resolve(this.folder, `${id}.json`)
 
-        this.logger?.debug(`Saving channel with id ${id} as ${path}...`)
+        this.logger?.debug(`Saving channel with id ${id} at ${path}...`)
 
         await fsp.writeFile(path, text)
 
@@ -43,12 +52,7 @@ export default class ChannelManager {
     }
 
     async readAll(deleteInvalid: boolean = true): Promise<Map<string, Channel>> {
-        this.logger?.debug("Getting channel ids...")
-
-        const ids = (await fsp.readdir(this.folder)).map(id => parse(id).name)
-
-        this.logger?.debug(`Got: ${ids.join(", ")}`)
-
+        const ids        = await this.readIds()
         const channelMap = new Map<string, Channel>()
 
         for (const id of ids) {
@@ -73,6 +77,16 @@ export default class ChannelManager {
         }
 
         return channelMap
+    }
+
+    async readIds(): Promise<string[]> {
+        this.logger?.debug("Getting channel ids...")
+
+        const ids = (await fsp.readdir(this.folder)).map(id => parse(id).name)
+
+        this.logger?.debug(`Got: ${ids.join(", ")}`)
+
+        return ids
     }
 
     async read(id: string): Promise<Channel> {
@@ -103,6 +117,10 @@ export default class ChannelManager {
             this.channelMap.set(channel.id, channel)
 
         return this
+    }
+
+    delete(id: string): boolean {
+        return this.channelMap.delete(id)
     }
 
     has(id: string): boolean {
