@@ -2,7 +2,6 @@ import z                        from "zod"
 import express                  from "express"
 import VkBot                    from "node-vk-bot-api"
 import ChannelManager           from "channel/ChannelManager"
-import Channel                  from "channel/Channel"
 import CommandManager           from "command/CommandManager"
 import Command                  from "command/Command"
 
