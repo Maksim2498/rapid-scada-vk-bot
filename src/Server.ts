@@ -126,7 +126,7 @@ export default class Server {
                 minArgCount: 1,
                 description: "удалить канал уведомлений",
 
-                action: (ctx, args) => {
+                action: async (ctx, args) => {
                     const channel = this.channelManager.get(args[0]!)
 
                     if (channel == null) {
@@ -140,7 +140,7 @@ export default class Server {
                     }
 
                     this.channelManager.delete(channel.id)
-                    this.channelManager.save(channel.id)
+                    await this.channelManager.save(channel.id)
 
                     ctx.reply("Канал удалён")
                 }
@@ -152,8 +152,23 @@ export default class Server {
                 minArgCount: 1,
                 description: "подписаться на канал уведомлений",
 
-                action(ctx) {
+                action: async (ctx, args) => {
+                    const channel = this.channelManager.get(args[0]!)
 
+                    if (channel == null) {
+                        ctx.reply("Канала таким ID не сущестует")
+                        return
+                    }
+
+                    if (channel.subscriberIds.has(ctx.message.from_id)) {
+                        ctx.reply("Подписка уже оформлена")
+                        return
+                    }
+
+                    channel.subscriberIds.add(ctx.message.from_id)
+                    await this.channelManager.save(channel.id)
+
+                    ctx.reply("Подписка оформлена")
                 }
             })
 
@@ -163,8 +178,23 @@ export default class Server {
                 minArgCount: 1,
                 description: "отписаться от канала уведомлений",
 
-                action(ctx) {
+                action: async (ctx, args) => {
+                    const channel = this.channelManager.get(args[0]!)
 
+                    if (channel == null) {
+                        ctx.reply("Канала таким ID не сущестует")
+                        return
+                    }
+
+                    const deleted = channel.subscriberIds.delete(ctx.message.from_id)
+
+                    if (deleted) {
+                        await this.channelManager.save(channel.id)
+                        ctx.reply("Подписка отменена")
+                        return
+                    }
+
+                    ctx.reply("Вы не подписаны на данный канал")
                 }
             })
 

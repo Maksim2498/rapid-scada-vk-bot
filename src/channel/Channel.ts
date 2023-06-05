@@ -30,13 +30,13 @@ export default class Channel {
     readonly bot:            VkBot
     readonly id:            string
     readonly creatorId:     number
-             subscriberIds: number[]
+             subscriberIds: Set<number>
 
     constructor(options: ChannelOptions) {
         this.bot           = options.bot
         this.id            = options.id?.toLowerCase() ?? crypto.randomBytes(Channel.ID_BYTE_LENGTH).toString("hex")
         this.creatorId     = options.creatorId
-        this.subscriberIds = [...options.subscriberIds ?? [this.creatorId]]
+        this.subscriberIds = new Set(options.subscriberIds ?? [this.creatorId])
     }
 
     toJSON(): ChannelJSON {
