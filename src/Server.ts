@@ -137,6 +137,8 @@ export default class Server {
 
                     this.channelManager.delete(channel.id)
                     this.channelManager.save(channel.id)
+
+                    ctx.reply("Канал удалён")
                 }
             })
 
