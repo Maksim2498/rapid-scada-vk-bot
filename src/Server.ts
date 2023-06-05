@@ -111,7 +111,8 @@ export default class Server {
 
                     this.channelManager.add(channel)
                     await this.channelManager.save(channel.id)
-                    ctx.reply(`Канал создан.\nID канала: ${channel.id}`)
+
+                    ctx.reply(`Канал создан.\n\nID канала: ${channel.id}`)
                 }
             })
 
@@ -121,8 +122,21 @@ export default class Server {
                 minArgCount: 1,
                 description: "удалить канал уведомлений",
 
-                action(ctx) {
+                action: (ctx, args) => {
+                    const channel = this.channelManager.get(args[1]!)
 
+                    if (channel == null) {
+                        ctx.reply(`Канала таким ID не сущестует`)
+                        return
+                    }
+
+                    if (channel.creatorId !== ctx.message.from_id) {
+                        ctx.reply(`Только создатель канала может его удалить`)
+                        return
+                    }
+
+                    this.channelManager.delete(channel.id)
+                    this.channelManager.save(channel.id)
                 }
             })
 
