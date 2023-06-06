@@ -2,6 +2,7 @@ import z                        from "zod"
 import express                  from "express"
 import VkBot                    from "node-vk-bot-api"
 import ChannelManager           from "channel/ChannelManager"
+import Channel                  from "channel/Channel"
 import CommandManager           from "command/CommandManager"
 import Command                  from "command/Command"
 
@@ -227,12 +228,32 @@ export default class Server {
                 }
             })
 
+            const listsub = new Command({
+                name:        "listsub",
+                description: "вывести список каналов, на которые оформлена подписка",
+
+                action: async ctx => {
+                    const channels = new Array<Channel>()
+
+                    for (const channel of this.channelManager.channels())
+                        if (channel.subscriberIds.has(ctx.message.from_id))
+                            channels.push(channel)
+
+                    const message = channels.length === 0 ? "Вы не подписаны ни на один канал"
+                                                          : "Ваши подписки:\n\n"
+                                                          + channels.map(channel => channel.id).join("\n\n")
+
+                    ctx.reply(message)
+                }
+            })
+
             this.commandManager.register(
                 help,
                 create,
                 del,
                 sub,
                 unsub,
+                listsub,
             )
 
             this.bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
