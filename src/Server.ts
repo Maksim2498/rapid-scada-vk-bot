@@ -232,7 +232,7 @@ export default class Server {
                 name:        "listsub",
                 description: "вывести список каналов, на которые оформлена подписка",
 
-                action: async ctx => {
+                action: ctx => {
                     const channels = new Array<Channel>()
 
                     for (const channel of this.channelManager.channels())
@@ -247,6 +247,25 @@ export default class Server {
                 }
             })
 
+            const listmy = new Command({
+                name:        "listmy",
+                description: "вывести список созданных Вами каналов",
+
+                action: ctx => {
+                    const channels = new Array<Channel>()
+
+                    for (const channel of this.channelManager.channels())
+                        if (channel.creatorId === ctx.message.from_id)
+                            channels.push(channel)
+
+                    const message = channels.length === 0 ? "Вы не пока не создали ни одного канала"
+                                                          : "Ваши каналы:\n\n"
+                                                          + channels.map(channel => channel.id).join("\n\n")
+
+                    ctx.reply(message)
+                }
+            })
+
             this.commandManager.register(
                 help,
                 create,
@@ -254,6 +273,7 @@ export default class Server {
                 sub,
                 unsub,
                 listsub,
+                listmy,
             )
 
             this.bot.command([], ctx => ctx.reply("Я вас не понял.\nЧтобы узнать, что я умею введите /help"))
