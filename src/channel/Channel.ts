@@ -27,7 +27,7 @@ export default class Channel {
         })
     }
 
-    readonly bot:            VkBot
+    readonly bot:           VkBot
     readonly id:            string
     readonly creatorId:     number
              subscriberIds: Set<number>
@@ -48,6 +48,12 @@ export default class Channel {
     }
 
     async publish(message: string) {
+        message = "Уведомление\n"
+                + "\n"
+                + `ID канала: ${this.id}\n`
+                + "\n"
+                + `Сообщение: ${message}`
+
         for (const id of this.subscriberIds)
             await this.bot.sendMessage(id, message)
     }
